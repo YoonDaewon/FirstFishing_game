@@ -1,6 +1,8 @@
 var async = require('async');
 var moment = require('moment');
 
+var crypt = require('../lib/Crypt');
+
 var usersDAO = require('../DAO/usersDAO');
 
 function User() { }
@@ -24,7 +26,7 @@ User.show = function (req, res) {
             if (err) {
                 res.send("fail");
             } else {
-                res.send(result);
+                res.send(crypt.encode(result));
             }
         }
     );
