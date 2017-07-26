@@ -25,7 +25,7 @@ app.get('/', function(req, res) {
     res.send('Server is Running..');
 });
 
-app.get('/show', user.show)
+app.get('/show/:idx', user.show)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

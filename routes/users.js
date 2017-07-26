@@ -6,19 +6,20 @@ var usersDAO = require('../DAO/usersDAO');
 function User() { }
 
 User.show = function (req, res) {
+    var idx = req.params.idx;
 
     async.waterfall([
         function (callback) {
-            usersDAO.connectDB(idx, user)
-            {
+            usersDAO.connectDB(idx, function (err, user) {
                 if (err) {
                     res.send("Fail to Connect DB");
                 }
                 else {
                     callback(null, user);
                 }
-            }
-        }],
+            });
+        }
+    ],
         function (err, result) {
             if (err) {
                 res.send("fail");
@@ -28,3 +29,5 @@ User.show = function (req, res) {
         }
     );
 };
+
+module.exports = User;
