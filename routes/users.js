@@ -1,7 +1,7 @@
 var async = require('async');
 var moment = require('moment');
 
-var usersDAO = require('../DAO/UsersDAO');
+var usersDAO = require('../DAO/usersDAO');
 
 function User() { }
 
