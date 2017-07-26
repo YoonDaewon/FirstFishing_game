@@ -24,7 +24,7 @@ User.show = function (req, res) {
             if (err) {
                 res.send("fail");
             } else {
-                res.send("succes");
+                res.send(result);
             }
         }
     );
