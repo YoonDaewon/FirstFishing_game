@@ -5,6 +5,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+// 로거 정의
+var Logger              = require('./lib/Logger');
+global.logger = new Logger();
+
 var user       = require('./routes/users');
 
 var app = express();
@@ -24,8 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', function(req, res) {
     res.send('Server is Running..');
 });
-
-app.get('/show/:idx', user.show)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
