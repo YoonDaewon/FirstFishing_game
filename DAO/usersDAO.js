@@ -161,7 +161,7 @@ UsersDAO.createUser = function (newData, callback) {
                                         }
                                     });
                                 },
-                                function (cd) {
+                                function (cb) {
                                     // TB_PLATFORM 에 등록
                                     var PlatformData = {
                                         user_idx: userIdx,
@@ -182,7 +182,7 @@ UsersDAO.createUser = function (newData, callback) {
                                             cb(err);
                                         }
                                         else {
-                                            cd();
+                                            cb();
                                         }
                                     });
                                 }
