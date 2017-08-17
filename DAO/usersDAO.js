@@ -296,7 +296,7 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                 );
             }
             // link = 'y'로 변경. 연결
-            var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
+            var sql = "UPDATE DB_USER.TB_USER_PLATFORM SET link='y' WHERE user_idx=? AND id=?";
             var query = connection.query(sql, [uidx, id], function (err) {
                 connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
