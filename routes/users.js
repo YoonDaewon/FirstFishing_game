@@ -37,7 +37,6 @@ User.login = function (req, res) {
 
             logger.debug(id, __filename, func, 'login=>req.body.data: ' + JSON.stringify(req.body.data));
             if (device && id && language) {
-                logger.debug(id, __filename, func, "data교환 성공");
                 callback();
             } else {
                 logger.error(id, __filename, func, errors.ERR_EMPTY_PARAMS);
