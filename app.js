@@ -10,6 +10,8 @@ require('env2')('config.env');
 var Logger              = require('./lib/Logger');
 global.logger = new Logger();
 
+var crypt = require('./lib/Crypt');
+
 var user       = require('./routes/users');
 
 var app = express();
@@ -25,6 +27,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 전처리기
+app.use(function(req,res,next){
+  if(req.method.toLowerCase() == 'post'){
+    if(req.body.data){
+      req.body.data = crypt.decode(req.body.data);
+    }
+    else{
+      next();
+    }
+  }
+});
 
 app.get('/', function(req, res) {
     res.send('Server is Running..');
