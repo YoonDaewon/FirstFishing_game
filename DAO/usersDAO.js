@@ -124,8 +124,8 @@ UsersDAO.createUser = function (newData, callback) {
                             // TB_USER에 등록, idx 반환
                             var UserData = {
                                 id: newData.id,
-                                lang: newData.lang,
-                                platform: newData.platform
+                                platform: newData.platform,
+                                lang: newData.lang                                
                             };
                             var sql = "INSERT INTO DB_USER.TB_USER SET ?";
                             var query = connection.query(sql, UserData, function (err, result) {
@@ -146,8 +146,8 @@ UsersDAO.createUser = function (newData, callback) {
                                     var DeviceData = {
                                         user_idx: userIdx,
                                         id: newData.id,
-                                        link: "y",
-                                        platform: newData.platform
+                                        platform: newData.platform,
+                                        link: "y"                                       
                                     }
                                     var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
                                     var query = connection.query(sql, DeviceData, function (err) {
