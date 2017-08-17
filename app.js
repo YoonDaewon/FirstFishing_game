@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+require('env2')('config.env');
 
 // 로거 정의
 var Logger              = require('./lib/Logger');
