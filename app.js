@@ -32,7 +32,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req,res,next){
   if(req.method.toLowerCase() == 'post'){
     if(req.body.data){
-      logger.debug("test", __filename, "fgd", "dfdsfds");
       req.body.data = crypt.decode(req.body.data);
     }
     else{
