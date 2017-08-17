@@ -162,7 +162,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     });
                                 },
                                 function (cb) {
-                                    // TB_PLATFORM 에 등록
+                                    // TB_USER_PLATFORM 에 등록
                                     var PlatformData = {
                                         user_idx: userIdx,
                                         platform: newData.platform
@@ -174,7 +174,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     else {
                                         PlatformData.platform_id = newData.platformID;
                                     }
-                                    var sql = "INSERT INTO DB_USER.TB_PLATFORM SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_PLATFORM SET ?";
                                     var query = connection.query(sql, PlatformData, function (err) {
                                         logger.debug(id, __filename, func, query.sql);
                                         if (err) {
@@ -296,7 +296,7 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                 );
             }
             // link = 'y'로 변경. 연결
-            var sql = "UPDATE DB_USER.TB_USER_PLATFORM SET link='y' WHERE user_idx=? AND id=?";
+            var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
             var query = connection.query(sql, [uidx, id], function (err) {
                 connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
