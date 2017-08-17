@@ -37,6 +37,7 @@ User.login = function (req, res) {
 
             logger.debug(id, __filename, func, 'login=>req.body.data: ' + JSON.stringify(req.body.data));
             if (device && id && language) {
+                res.send("asaaa");
                 callback();
             } else {
                 logger.error(id, __filename, func, errors.ERR_EMPTY_PARAMS);
