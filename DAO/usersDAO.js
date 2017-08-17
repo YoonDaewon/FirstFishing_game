@@ -81,7 +81,7 @@ UsersDAO.readUserIdxByDeviceID = function (id, callback) {
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT user_idx FROM DB.USER.TB_DEVICE WHERE id=? AND link='y'";
+            var sql = "SELECT user_idx FROM DB_USER.TB_DEVICE WHERE id=? AND link='y'";
             var query = connection.query(sql, id, function (err, user) {
                 connection.release();
                 logger.debug(id, __filename, func, query.sql);
