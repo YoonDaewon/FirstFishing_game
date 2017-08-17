@@ -30,6 +30,10 @@ app.get('/', function(req, res) {
     res.send('Server is Running..');
 });
 
+// 유저 관련 API
+app.post('/login', user.login);
+app.post('/relogin', user.relogin);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
