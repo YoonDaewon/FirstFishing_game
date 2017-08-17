@@ -28,7 +28,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+// 전처리기
+app.use(function(req,res,next){
+  if(req.method.toLowerCase() == 'post'){
+    if(req.body.data){
+      req.body.data = crypt.decode(req.body.data);
+    }
+    else{
+      next();
+    }
+    next();
+  }
+  else{
+    next();
+  }
+});
 
 app.get('/', function(req, res) {
     res.send('Server is Running..');
