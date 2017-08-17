@@ -66,13 +66,13 @@ User.login = function (req, res) {
             // 접속된 계정이 없다면
             if (!user) {
                 resultObject.code = errors.ERR_NOT_LOGIN.code;
-                callback(null, resultObject);          
+                callback(null, resultObject);
             }
             // 계정이 있으면 로그인
             else {
                 // resultObject에 데이터들을 추가하여 정상 코드와 함께 전송
                 // 미구현.
-                callback(null,resultObject);
+                callback(null, resultObject);
             }
         }
     ],
@@ -102,26 +102,26 @@ User.relogin = function (req, res) {
     var language;
 
     async.waterfall([
-        function(callback){
+        function (callback) {
             // 파라메터 저장
             id = req.body.data.id;
-            device =req.body.data.device;
+            device = req.body.data.device;
             platform = req.body.data.platform;
             platformID = req.body.data.platformID;
             language = req.body.data.lang;
 
             logger.debug(id, __filename, func, 'ReLogin=>req.body.data: ' + JSON.stringify(req.body.data));
-            if(device && id && language){
+            if (device && id && language) {
                 callback();
             }
             else {
                 logger.error(errors.ERR_EMPTY_PARAMS);
             }
         },
-        function(callback){
-            if(platform == 'guest'){
-                usersDAO.readUserIdxFromTB_USER(id, platform, function(err, userIdx){
-                    if(err){
+        function (callback) {
+            if (platform == 'guest') {
+                usersDAO.readUserIdxFromTB_USER(id, platform, function (err, userIdx) {
+                    if (err) {
                         logger.error(id, __filename, func, err);
                         callback(er);
                     }
@@ -130,54 +130,54 @@ User.relogin = function (req, res) {
                     }
                 });
             }
-            else if(platform == 'google'){
-                userPlatformsDAO.ReadUserIdxByPlatformID(id, platform, platformID, function(err, userIdx){
-                    if(err){
+            else if (platform == 'google') {
+                userPlatformsDAO.ReadUserIdxByPlatformID(id, platform, platformID, function (err, userIdx) {
+                    if (err) {
                         logger.error(id, __filename, func, err);
                         callback(err);
                     }
-                    else{
+                    else {
                         callback(null, userIdx);
                     }
-                });                
+                });
             }
         },
-        function(userIdx, callback){
-            if(!userIdx){
+        function (userIdx, callback) {
+            if (!userIdx) {
                 // 신규가입
                 var newUserData = {
                     id: id,
-                    platform : platform,
-                    platformID : platformID,
-                    lang : language
+                    platform: platform,
+                    platformID: platformID,
+                    lang: language
                 };
-                usersDAO.createUser(newUserData, function(err, userIdx){
-                    if(err){
+                usersDAO.createUser(newUserData, function (err, userIdx) {
+                    if (err) {
                         logger.error(id, __filename, func, err);
                         callback(err);
                     }
-                    else{
+                    else {
                         callback(null, userIdx);
                     }
                 });
             }
             else {
-                // 이전 사용 계정이 존재하면 연결시켜줌
-                usersDAO.DeviceConnect(id, userIdx, function(err){
-                    if(err){
+                // 이전 사용 계정이 존재하면 연결시켜줌      
+                usersDAO.DeviceConnect(id, userIdx, platform, function (err) {
+                    if (err) {
                         logger.error(id, __filename, func, err);
                         callback(err);
                     }
-                    else{
+                    else {
                         callback(null, userIdx);
                     }
-                });          
+                });
             }
         },
-        function(userIdx, callback){
+        function (userIdx, callback) {
             // 불러온 계정이 연결 됐으므로, 바로 유저 정보를 가져옴
-            userGamesDAO.readUserGameInfo(userIdx, function(err, userData){
-                if(err){
+            userGamesDAO.readUserGameInfo(userIdx, function (err, userData) {
+                if (err) {
                     logger.error(id, __filename, func, err);
                     callback(err);
                 }
@@ -187,14 +187,14 @@ User.relogin = function (req, res) {
             });
         }
     ],
-    function(err, result){
-        if(err){
-            res.status(200).send(crypt.encode(err));
-        }
-        else{
-            res.status(200).send(crypt.encode(result));
-        }
-    });
+        function (err, result) {
+            if (err) {
+                res.status(200).send(crypt.encode(err));
+            }
+            else {
+                res.status(200).send(crypt.encode(result));
+            }
+        });
 };
 
 module.exports = User;
