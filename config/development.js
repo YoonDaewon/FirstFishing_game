@@ -3,7 +3,7 @@
 module.exports = {
     mysql: {
         master: {
-            connectionLimit: 100,
+            connectionLimit: 10,
             host: "13.124.158.58",
             user: "root",
             password: "qwe123"
