@@ -264,8 +264,8 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                             var DeviceData = {
                                 user_idx: uidx,
                                 id: id,
-                                link: 'y',
-                                platform: platform
+                                platform: platform,
+                                link: 'y'                                
                             };
                             var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
                             var query = connection.query(sql, DeviceData, function (err) {
