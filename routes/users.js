@@ -163,7 +163,7 @@ User.relogin = function (req, res) {
             }
             else {
                 // 이전 사용 계정이 존재하면 연결시켜줌      
-                usersDAO.DeviceConnect(id, userIdx, platform, function (err) {
+                usersDAO.DeviceConnect(id, userIdx.idx, platform, function (err) {
                     if (err) {
                         logger.error(id, __filename, func, err);
                         callback(err);
