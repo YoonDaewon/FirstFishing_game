@@ -13,6 +13,7 @@ global.logger = new Logger();
 var crypt = require('./lib/Crypt');
 
 var user       = require('./routes/users');
+var inform     = require('./routes/inform');
 
 var app = express();
 
@@ -51,6 +52,10 @@ app.get('/', function(req, res) {
 // 유저 관련 API
 app.post('/login', user.login);
 app.post('/relogin', user.relogin);
+
+// 약관 및 개인정보 보호 관련 공지 보여주기
+app.get('/terms/:lang', inform.terms);                                    // 약관 보여주기
+app.get('/privacy/:lang', inform.privacy);                                // 개인정보 보호 보여주기
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
