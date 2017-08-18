@@ -125,7 +125,7 @@ UsersDAO.createUser = function (newData, callback) {
                             var UserData = {
                                 id: newData.id,
                                 platform: newData.platform,
-                                lang: newData.lang                                
+                                lang: newData.lang
                             };
                             var sql = "INSERT INTO DB_USER.TB_USER SET ?";
                             var query = connection.query(sql, UserData, function (err, result) {
@@ -147,7 +147,7 @@ UsersDAO.createUser = function (newData, callback) {
                                         user_idx: userIdx,
                                         id: newData.id,
                                         platform: newData.platform,
-                                        link: "y"                                       
+                                        link: "y"
                                     }
                                     var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
                                     var query = connection.query(sql, DeviceData, function (err) {
@@ -254,7 +254,7 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                                 callback(err);
                             }
                             else {
-                                callback(null, user_idx);
+                                callback(null, user_idx[0]);
                             }
                         });
                     },
@@ -283,6 +283,21 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                         else {
                             callback();
                         }
+                    },
+                    function (callback) {
+                        // link = 'y'로 변경. 연결
+                        var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
+                        var query = connection.query(sql, [uidx, id], function (err) {
+                            connection.release();
+                            logger.debug(uidx, __filename, func, query.sql);
+                            if (err) {
+                                logger.error(uidx, __filename, func, err);
+                                callback(errors.ERR_DB_QUERY);
+                            }
+                            else {
+                                callback();
+                            }
+                        });
                     }
                 ],
                     function (err, result) {
@@ -295,19 +310,21 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                     }
                 );
             }
-            // link = 'y'로 변경. 연결
-            var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
-            var query = connection.query(sql, [uidx, id], function (err) {
-                connection.release();
-                logger.debug(uidx, __filename, func, query.sql);
-                if (err) {
-                    logger.error(uidx, __filename, func, err);
-                    callback(errors.ERR_DB_QUERY);
-                }
-                else {
-                    callback();
-                }
-            });
+            else {
+                // link = 'y'로 변경. 연결
+                var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
+                var query = connection.query(sql, [uidx, id], function (err) {
+                    connection.release();
+                    logger.debug(uidx, __filename, func, query.sql);
+                    if (err) {
+                        logger.error(uidx, __filename, func, err);
+                        callback(errors.ERR_DB_QUERY);
+                    }
+                    else {
+                        callback();
+                    }
+                });
+            }
         }
     });
 };
