@@ -8,34 +8,6 @@ var errors = require('../message/errors');
 function UsersDAO() { }
 
 /**
- * DB연동 테스트
- *
- * @param uidx
- * @param callback
- */
-UsersDAO.connectDB = function (uidx, callback) {
-    var func = "connectDB";
-
-    poolCluster.getConnection(function (err, connection) {
-        if (err) {
-            res.send('DB connection Error');
-        } else {
-            var sql = "SELECT *";
-            sql += " FROM test.user";
-            sql += " WHERE idx=?";
-            var query = connection.query(sql, [uidx], function (err, user) {
-                connection.release();
-                if (err) {
-                    res.send('Select fail');
-                } else {
-                    callback(null, user[0]);
-                }
-            });
-        }
-    });
-};
-
-/**
  * TB_USER에서 idx를 검색
  *
  * @param id
@@ -229,15 +201,15 @@ UsersDAO.createUser = function (newData, callback) {
 /**
  * 계정 link = 'y' 로 변경
  * 
- * @param uidx
+ * @param user_idx
  * @param callback
  */
-UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
+UsersDAO.DeviceConnect = function (id, user_idx, platform, callback) {
     var func = "DeviceConnect";
 
     poolCluster.getConnection(function (err, connection) {
         if (err) {
-            logger.error("user : " + uidx, __filename, func, err);
+            logger.error("user : " + user_idx, __filename, func, err);
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
@@ -247,9 +219,9 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                         // 계정은 존재하고 기기만 변경한 것인지 확인
                         var sql = "SELECT user_idx FROM DB_USER.TB_DEVICE WHERE id=? AND platform=?";
                         var query = connection.query(sql, [id, platform], function (err, user) {
-                            logger.debug(uidx, __filename, func, query.sql);
+                            logger.debug(user_idx, __filename, func, query.sql);
                             if (err) {
-                                logger.error(uidx, __filename, func, err);
+                                logger.error(user_idx, __filename, func, err);
                                 callback(err);
                             }
                             else {
@@ -261,17 +233,17 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                         if (!user) {
                             // TB_DEVICE에 등록된 계정이 없다면 새로 생성
                             var DeviceData = {
-                                user_idx: uidx,
+                                user_idx: user_idx,
                                 id: id,
                                 platform: platform,
                                 link: 'y'                                
                             };
                             var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
-                            var query = connection.query(sql, [DeviceData], function (err) {
+                            var query = connection.query(sql, DeviceData, function (err) {
                                 connection.release();
-                                logger.debug(uidx, __filename, func, query.sql);
+                                logger.debug(user_idx, __filename, func, query.sql);
                                 if (err) {
-                                    logger.error(uidx, __filename, func, err);
+                                    logger.error(user_idx, __filename, func, err);
                                     callback(err);
                                 }
                                 else {
@@ -282,11 +254,11 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                         else {
                             // link = 'y'로 변경. 연결
                             var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
-                            var query = connection.query(sql, [uidx, id], function (err) {
+                            var query = connection.query(sql, [user_idx, id], function (err) {
                                 connection.release();
-                                logger.debug(uidx, __filename, func, query.sql);
+                                logger.debug(user_idx, __filename, func, query.sql);
                                 if (err) {
-                                    logger.error(uidx, __filename, func, err);
+                                    logger.error(user_idx, __filename, func, err);
                                     callback(errors.ERR_DB_QUERY);
                                 }
                                 else {
@@ -309,11 +281,11 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
             else {
                 // link = 'y'로 변경. 연결
                 var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
-                var query = connection.query(sql, [uidx, id], function (err) {
+                var query = connection.query(sql, [user_idx, id], function (err) {
                     connection.release();
-                    logger.debug(uidx, __filename, func, query.sql);
+                    logger.debug(user_idx, __filename, func, query.sql);
                     if (err) {
-                        logger.error(uidx, __filename, func, err);
+                        logger.error(user_idx, __filename, func, err);
                         callback(errors.ERR_DB_QUERY);
                     }
                     else {
