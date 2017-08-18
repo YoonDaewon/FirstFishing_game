@@ -246,20 +246,19 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                     function (callback) {
                         // 계정은 존재하고 기기만 변경한 것인지 확인
                         var sql = "SELECT user_idx FROM DB_USER.TB_DEVICE WHERE id=? AND platform=?";
-                        var query = connection.query(sql, [id, platform], function (err, user_idx) {
-                            connection.release();
+                        var query = connection.query(sql, [id, platform], function (err, user) {
                             logger.debug(uidx, __filename, func, query.sql);
                             if (err) {
                                 logger.error(uidx, __filename, func, err);
                                 callback(err);
                             }
                             else {
-                                callback(null, user_idx[0]);
+                                callback(null, user[0]);
                             }
                         });
                     },
-                    function (user_idx, callback) {
-                        if (!user_idx) {
+                    function (user, callback) {
+                        if (!user) {
                             // TB_DEVICE에 등록된 계정이 없다면 새로 생성
                             var DeviceData = {
                                 user_idx: uidx,
