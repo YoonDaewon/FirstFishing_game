@@ -248,9 +248,9 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                         var sql = "SELECT user_idx FROM DB_USER.TB_DEVICE WHERE id=? AND platform=?";
                         var query = connection.query(sql, [id, platform], function (err, user_idx) {
                             connection.release();
-                            logger.debug(id, __filename, func, query.sql);
+                            logger.debug(uidx, __filename, func, query.sql);
                             if (err) {
-                                logger.error(id, __filename, func, err);
+                                logger.error(uidx, __filename, func, err);
                                 callback(err);
                             }
                             else {
@@ -270,9 +270,9 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                             var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
                             var query = connection.query(sql, DeviceData, function (err) {
                                 connection.release();
-                                logger.debug(id, __filename, func, query.sql);
+                                logger.debug(uidx, __filename, func, query.sql);
                                 if (err) {
-                                    logger.error(id, __filename, func, err);
+                                    logger.error(uidx, __filename, func, err);
                                     callback(err);
                                 }
                                 else {
@@ -281,23 +281,20 @@ UsersDAO.DeviceConnect = function (id, uidx, platform, callback) {
                             });
                         }
                         else {
-                            callback();
+                            // link = 'y'로 변경. 연결
+                            var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
+                            var query = connection.query(sql, [uidx, id], function (err) {
+                                connection.release();
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if (err) {
+                                    logger.error(uidx, __filename, func, err);
+                                    callback(errors.ERR_DB_QUERY);
+                                }
+                                else {
+                                    callback();
+                                }
+                            });
                         }
-                    },
-                    function (callback) {
-                        // link = 'y'로 변경. 연결
-                        var sql = "UPDATE DB_USER.TB_DEVICE SET link='y' WHERE user_idx=? AND id=?";
-                        var query = connection.query(sql, [uidx, id], function (err) {
-                            connection.release();
-                            logger.debug(uidx, __filename, func, query.sql);
-                            if (err) {
-                                logger.error(uidx, __filename, func, err);
-                                callback(errors.ERR_DB_QUERY);
-                            }
-                            else {
-                                callback();
-                            }
-                        });
                     }
                 ],
                     function (err, result) {
