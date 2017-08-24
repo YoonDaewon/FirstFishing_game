@@ -228,11 +228,11 @@ User.relogin = function (req, res) {
                         }
                         else {
                             resultObject.code = errors.ERR_NONE;
+                            callback(null, resultObject);
                         }
                     }
                 }
             });
-            callback(null, resultObject);
         }
     ],
         function (err, result) {
