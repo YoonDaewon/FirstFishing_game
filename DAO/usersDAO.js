@@ -297,4 +297,35 @@ UsersDAO.DeviceConnect = function (id, user_idx, platform, callback) {
     });
 };
 
+/**
+ * 계정 Block 여부 및 Nickname 확인
+ * 
+ * @param user_idx
+ * @param callback
+ */
+UsersDAO.CheckAccountState = function(user_idx, callback){
+    var func = "CheckAccountState";
+
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.debug(user_idx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else {
+            var sql = "SELECT nickname, state FROM DB_USER.TB_USER where idx=?";
+            var query = connection.query(sql, user_idx, function(err, user){
+                connection.release();
+                logger.debug(user_idx, __filename, func, query.sql);
+                if(err){
+                    logeer.error(user_idx, __filename, func, err);
+                    callback(errors.ERR_DB_QUERY);
+                }
+                else {
+                    callback(null, user[0]);
+                }
+            });
+        }
+    });
+};
+
 module.exports = UsersDAO;

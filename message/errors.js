@@ -34,6 +34,21 @@ module.exports = {
         message: "로그인된 계정이 없음"
     },
 
+    ERR_ACCOUNT_PAUSE: {
+        code: 1007,
+        message: "정지된 계정"
+    },
+
+    ERR_ACCOUNT_BLOCK: {
+        code: 1008,
+        message: "영구정지된 계정"
+    },
+
+    ERR_NO_NICKNAME: {
+        code: 1009,
+        message: "닉네임이 설정되지 않음"
+    },
+
     ERROR_MAINTENANCE: {
         code: 1998,
         message: "현재 유지 보수 중입니다"

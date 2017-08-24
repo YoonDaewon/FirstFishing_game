@@ -4,6 +4,7 @@ var moment = require('moment');
 var crypt = require('../lib/Crypt');
 
 var errors = require('../message/errors');
+var configGame = require('../config/ConfigGame')
 
 var usersDAO = require('../DAO/usersDAO');
 var userPlatformsDAO = require('../DAO/userPlatformsDAO');
@@ -55,7 +56,7 @@ User.login = function (req, res) {
                 }
             });
         },
-        // 계정이 있으면 바로 로그인처리. 아니라면 err_no_login 전송
+        // 계정이 있으면 바로 블락 여부, 닉네임 확인. 아니라면 err_no_login 전송
         function (user, callback) {
 
             var resultObject = {
@@ -68,10 +69,33 @@ User.login = function (req, res) {
                 resultObject.code = errors.ERR_NOT_LOGIN.code;
                 callback(null, resultObject);
             }
-            // 계정이 있으면 로그인
+            // 계정이 있으면 정상 정보 전송
             else {
-                // resultObject에 데이터들을 추가하여 정상 코드와 함께 전송
-                // 미구현.
+                usersDAO.CheckAccountState(user.idx, function (err, userInfo) {
+                    if (err) {
+                        logger.error(id, __filename, func, err);
+                        callback(err);
+                    }
+                    else {
+                        if (userInfo.state == configGame.ACCOUNT_STATE.PAUSE) {
+                            resultObject.code = errors.ERR_ACCOUNT_PAUSE.code;
+                            callback(null, resultObject);
+                        }
+                        else if (userInfo.state == configGame.ACCOUNT_STATE.BLOCK) {
+                            resultObject.code = errors.ERR_ACCOUNT_BLOCK.code;
+                            callback(null, resultObject);
+                        }
+                        else {
+                            if (userInfo.nickname == null) {
+                                resultObject.code = errors.ERR_NO_NICKNAME.code;
+                                callback(null, resultObject);
+                            }
+                            else {
+                                resultObject.code = errors.ERR_NONE;
+                            }
+                        }
+                    }
+                });
                 callback(null, resultObject);
             }
         }
@@ -100,6 +124,10 @@ User.relogin = function (req, res) {
     var platform;
     var platformID;
     var language;
+
+    var resultObject = {
+        code: errors.ERR_NONE.code
+    }
 
     async.waterfall([
         function (callback) {
@@ -175,16 +203,33 @@ User.relogin = function (req, res) {
             }
         },
         function (userIdx, callback) {
-            // 불러온 계정이 연결 됐으므로, 바로 유저 정보를 가져옴
-            userGamesDAO.readUserGameInfo(userIdx, function (err, userData) {
+            // 블락 여부, 닉네임 체크
+            usersDAO.CheckAccountState(userIdx, function (err, userInfo) {
                 if (err) {
                     logger.error(id, __filename, func, err);
                     callback(err);
                 }
                 else {
-                    callback(null, userData);
+                    if (userInfo.state == configGame.ACCOUNT_STATE.PAUSE) {
+                        resultObject.code = errors.ERR_ACCOUNT_PAUSE.code;
+                        callback(null, resultObject);
+                    }
+                    else if (userInfo.state == configGame.ACCOUNT_STATE.BLOCK) {
+                        resultObject.code = errors.ERR_ACCOUNT_BLOCK.code;
+                        callback(null, resultObject);
+                    }
+                    else {
+                        if (userInfo.nickname == null) {
+                            resultObject.code = errors.ERR_NO_NICKNAME.code;
+                            callback(null, resultObject);
+                        }
+                        else {
+                            resultObject.code = errors.ERR_NONE;
+                        }
+                    }
                 }
             });
+            callback(null, resultObject);
         }
     ],
         function (err, result) {
