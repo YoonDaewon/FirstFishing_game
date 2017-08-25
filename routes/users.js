@@ -69,7 +69,6 @@ User.login = function (req, res) {
             else {
                 usersDAO.CheckAccountState(user.idx, function (err, userInfo) {
                     resultObject.user_idx = user.idx;
-                    resultObject.check1 = userInfo.state;
                     resultObject.check2 = configGame.ACCOUNT_STATE.PAUSE;
                     if (err) {
                         logger.error(id, __filename, func, err);
