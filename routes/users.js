@@ -190,6 +190,7 @@ User.relogin = function (req, res) {
                 });
             }
             else {
+                // 이미 연결이 되 있을때는 여기로 오면 안됨
                 // 이전 사용 계정이 존재하면 연결시켜줌      
                 usersDAO.DeviceConnect(id, userIdx, platform, function (err) {
                     if (err) {
@@ -205,9 +206,6 @@ User.relogin = function (req, res) {
         function (userIdx, callback) {
             // 블락 여부, 닉네임 체크
             usersDAO.CheckAccountState(userIdx, function (err, userInfo) {
-                resultObject.id = userIdx;
-                resultObject.state = userInfo.state;
-                resultObject.nick = userInfo.state;
                 if (err) {
                     logger.error(id, __filename, func, err);
                     callback(err);
