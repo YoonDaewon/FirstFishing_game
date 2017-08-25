@@ -317,7 +317,7 @@ UsersDAO.CheckAccountState = function(user_idx, callback){
                 connection.release();
                 logger.debug(user_idx, __filename, func, query.sql);
                 if(err){
-                    logeer.error(user_idx, __filename, func, err);
+                    logger.error(user_idx, __filename, func, err);
                     callback(errors.ERR_DB_QUERY);
                 }
                 else {
