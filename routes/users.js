@@ -67,9 +67,7 @@ User.login = function (req, res) {
             }
             // 계정이 있으면 정상 정보 전송
             else {
-                usersDAO.CheckAccountState(user.idx, function (err, userInfo) {
-                    resultObject.user_idx = user.idx;
-                    resultObject.check2 = configGame.ACCOUNT_STATE.PAUSE;
+                usersDAO.CheckAccountState(user.user_idx, function (err, userInfo) {
                     if (err) {
                         logger.error(id, __filename, func, err);
                         callback(err);
