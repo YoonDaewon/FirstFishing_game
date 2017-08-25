@@ -190,7 +190,6 @@ User.relogin = function (req, res) {
                 });
             }
             else {
-                // 이미 연결이 되 있을때는 여기로 오면 안됨
                 // 이전 사용 계정이 존재하면 연결시켜줌      
                 usersDAO.DeviceConnect(id, userIdx, platform, function (err) {
                     if (err) {
@@ -213,6 +212,7 @@ User.relogin = function (req, res) {
                 else {
                     if (userInfo.state == configGame.ACCOUNT_STATE.PAUSE) {
                         resultObject.code = errors.ERR_ACCOUNT_PAUSE.code;
+                        resultObject.pause_time = userInfo.pause_time;
                         callback(null, resultObject);
                     }
                     else if (userInfo.state == configGame.ACCOUNT_STATE.BLOCK) {
