@@ -58,11 +58,7 @@ User.login = function (req, res) {
         },
         // 계정이 있으면 바로 블락 여부, 닉네임 확인. 아니라면 err_no_login 전송
         function (user, callback) {
-
-            var resultObject = {
-                code: errors.ERR_NONE.code,
-                uidx: id
-            };
+            var resultObject = {};
 
             // 접속된 계정이 없다면
             if (!user) {
