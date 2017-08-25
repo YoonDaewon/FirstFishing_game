@@ -160,19 +160,59 @@ UsersDAO.createUser = function (newData, callback) {
                                 },
                                 function(cb){
                                     // TB_USER_GAME 생성
-                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME"
+                                    var InsertData = {
+                                        idx: userIdx
+                                    };
+                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME SET ?";
+                                    var query = connection.query(sql, InsertData, function(err){
+                                        logger.debug(id, __filename, func, query.sql);
+                                        if(err){
+                                            logger.error(id, __filename, func, err);
+                                            cb(err);
+                                        }
+                                        else {
+                                            cb();
+                                        }
+                                    });
                                 },
                                 function(cb){
                                     // TB_USER_AQUARIUM
+                                    var InsertData = {
+                                        user_idx: userIdx,
+                                        aquarium_idx: 1
+                                    };
+                                    var sql = "INSERT INTO DB_USER.TB_USER_AQUARIUM SET ?";
+                                    var query = connection.query(sql, InsertData, function(err){
+                                        logger.debug(id, __filename, func, query.sql);
+                                        if(err){
+                                            logger.error(id, __filename, func, err);
+                                            cb(err);
+                                        }
+                                        else {
+                                            cb(err);
+                                        }
+                                    });
                                 },
                                 function(cb){
                                     // TB_USER_ITEM_INVENTORY
+                                    cb();
                                 },
                                 function(cb){
                                     // TB_USER_PARTNER 
-                                },
-                                function(cb){
-                                    // TB_USER_PARTNER_DRESS
+                                    var InsertData = {
+                                        user_idx: userIdx
+                                    };
+                                    var sql = "INSERT INTO DB_USER.TB_USER_PARTNER SET ?";
+                                    var query = connection.query(sql, InsertData, function(err){
+                                        logger.debug(id, __filename, func, query.sql);
+                                        if(err){
+                                            logger.error(id, __filename, func, err);
+                                            cb(err);
+                                        }
+                                        else{
+                                            cb(err);
+                                        }
+                                    });
                                 }
                             ],
                                 function (err) {
