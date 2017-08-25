@@ -157,6 +157,22 @@ UsersDAO.createUser = function (newData, callback) {
                                             cb();
                                         }
                                     });
+                                },
+                                function(cb){
+                                    // TB_USER_GAME 생성
+                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME"
+                                },
+                                function(cb){
+                                    // TB_USER_AQUARIUM
+                                },
+                                function(cb){
+                                    // TB_USER_ITEM_INVENTORY
+                                },
+                                function(cb){
+                                    // TB_USER_PARTNER 
+                                },
+                                function(cb){
+                                    // TB_USER_PARTNER_DRESS
                                 }
                             ],
                                 function (err) {

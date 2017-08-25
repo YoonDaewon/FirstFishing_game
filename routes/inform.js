@@ -7,8 +7,8 @@ function Inform() {}
  * @param res
  */
 Inform.terms = function(req, res) {
-    var language = req.params.lang;
-    res.render('inform_' + language, {term: true});
+    var language = req.params.lang;야
+    res.render('terms_' + language, {term: true});
 };
 
 /**
@@ -19,7 +19,7 @@ Inform.terms = function(req, res) {
  */
 Inform.privacy = function(req, res) {
     var language = req.params.lang;
-    res.render('inform_' + language, {term: false});
+    res.render('privacy_' + language, {term: false});
 };
 
 module.exports = Inform;
