@@ -7,7 +7,7 @@ function Inform() {}
  * @param res
  */
 Inform.terms = function(req, res) {
-    var language = req.params.lang;야
+    var language = req.params.lang;
     res.render('terms_' + language, {term: true});
 };
 
