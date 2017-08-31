@@ -69,7 +69,7 @@ GlobalVariable.allSet = function(){
                     var sql = "SELECT lv, need_exp, hook FROM DB_GAME_DATA.TB_GAME_LEVEL";
                     connection.query(sql, function(err, tableLevel){
                         if(err){
-                            logger("system", __filename, func, err);
+                            logger.error("system", __filename, func, err);
                             next();
                         }
                         else {
