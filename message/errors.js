@@ -49,8 +49,29 @@ module.exports = {
         message: "닉네임이 설정되지 않음"
     },
 
+    ERR_USER_NO_EXIST: {
+        code: 1010,
+        message: "유저 정보가 없음"
+    },
+
     ERROR_MAINTENANCE: {
         code: 1998,
         message: "현재 유지 보수 중입니다"
+    },
+    
+    ERR_USER_FISH_NOT_EXIST: {
+        code: 2008,
+        message: "해당 물고기를 보유하고 있지 않습니다"
+    },
+
+    ERR_CAN_NOT_EQUIP_ITEM: {
+        code: 2009,
+        message: "해당 아이템은 장착 변경이 불가능 합니다."
+    },
+
+    ERR_USER_NOT_EXIST:
+    {
+        code: 2010,
+        message: "유저가 존재하지 않습니다"
     }    
 };

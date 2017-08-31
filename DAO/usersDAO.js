@@ -99,7 +99,7 @@ UsersDAO.createUser = function (newData, callback) {
                                 platform: newData.platform,
                                 lang: newData.lang
                             };
-                            var sql = "INSERT INTO DB_USER.TB_USER SET ?";
+                            var sql = "INSERT INTO DB_USER.TB_USER SET ?, created=NOW()";
                             var query = connection.query(sql, UserData, function (err, result) {
                                 logger.debug(id, __filename, func, query.sql);
                                 if (err) {
@@ -121,7 +121,7 @@ UsersDAO.createUser = function (newData, callback) {
                                         platform: newData.platform,
                                         link: "y"
                                     }
-                                    var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?, created=NOW()";
                                     var query = connection.query(sql, DeviceData, function (err) {
                                         logger.debug(id, __filename, func, query.sql);
                                         if (err) {
@@ -146,7 +146,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     else {
                                         PlatformData.platform_id = newData.platformID;
                                     }
-                                    var sql = "INSERT INTO DB_USER.TB_USER_PLATFORM SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_PLATFORM SET ?, created=NOW()";
                                     var query = connection.query(sql, PlatformData, function (err) {
                                         logger.debug(id, __filename, func, query.sql);
                                         if (err) {
@@ -163,7 +163,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     var InsertData = {
                                         idx: userIdx
                                     };
-                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME SET ?, created=NOW()";
                                     var query = connection.query(sql, InsertData, function(err){
                                         logger.debug(id, __filename, func, query.sql);
                                         if(err){
@@ -181,7 +181,7 @@ UsersDAO.createUser = function (newData, callback) {
                                         user_idx: userIdx,
                                         aquarium_idx: 1
                                     };
-                                    var sql = "INSERT INTO DB_USER.TB_USER_AQUARIUM SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_AQUARIUM SET ?, created=NOW()";
                                     var query = connection.query(sql, InsertData, function(err){
                                         logger.debug(id, __filename, func, query.sql);
                                         if(err){
@@ -202,7 +202,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     var InsertData = {
                                         user_idx: userIdx
                                     };
-                                    var sql = "INSERT INTO DB_USER.TB_USER_PARTNER SET ?";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_PARTNER SET ?, created=NOW()";
                                     var query = connection.query(sql, InsertData, function(err){
                                         logger.debug(id, __filename, func, query.sql);
                                         if(err){
@@ -294,7 +294,7 @@ UsersDAO.DeviceConnect = function (id, user_idx, platform, callback) {
                                 platform: platform,
                                 link: 'y'                                
                             };
-                            var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?";
+                            var sql = "INSERT INTO DB_USER.TB_DEVICE SET ?, created=NOW()";
                             var query = connection.query(sql, DeviceData, function (err) {
                                 connection.release();
                                 logger.debug(user_idx, __filename, func, query.sql);

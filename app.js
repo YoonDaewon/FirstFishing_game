@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 require('env2')('config.env');
+require('./config/GlobalVariables').allSet();
 
 // 로거 정의
 var Logger              = require('./lib/Logger');

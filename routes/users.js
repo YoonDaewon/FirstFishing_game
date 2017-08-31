@@ -109,6 +109,7 @@ User.login = function (req, res) {
 
 /**
  * 연동된 계정이 없을 경우, 클라에서 선택된 결과로 다시 로그인
+ * 결과로 블락 여부를 리턴
  * 
  * @param req
  * @param res
@@ -238,6 +239,58 @@ User.relogin = function (req, res) {
                 res.status(200).send(crypt.encode(result));
             }
         });
+};
+
+/**
+ * Lobby로 입장하면서 유저 정보를 모두 받아옴
+ * 
+ * @param req
+ * @param res
+ */
+User.lobby = function(req, res){
+    var func = "lobby";
+    
+    var uidx;
+
+    async.waterfall([
+        // 파라메터 체크
+        function(callback){
+            uidx = req.body.data.uidx;
+            if(uidx){
+                callback();
+            }
+            else {
+                logger.error(uidx, __filename, func, errors.ERR_EMPTY_PARAMS);
+                callback(errors.ERR_EMPTY_PARAMS);
+            }
+        },
+        function(callback){
+            async.parallel([
+                // 유저 게임 정보 가져오기
+                function(next){
+                    userGamesDAO.readUserGameInfo(uidx, function(err, userGame){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, userGame);
+                        }
+                    });
+                },
+                // 장착한 아이템 정보 가져오기
+                function(next){
+
+                },
+                // 수조정보
+                function(next){
+
+                }
+            ])
+
+        }
+    ])
+
 };
 
 module.exports = User;
