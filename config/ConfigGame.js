@@ -17,5 +17,11 @@ module.exports = {
         FISH_LINE: 'fish_line',
         LURE: 'lure',
         CAPSULE: 'capsule'
+    },
+
+    CURRENCY_TYPE: {
+        COIN: 'coin',
+        PEARL: 'pearl',
+        CORAL: 'coral'
     }
 };

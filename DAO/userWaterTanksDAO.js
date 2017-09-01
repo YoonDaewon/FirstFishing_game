@@ -189,7 +189,7 @@ UserWaterTanksDAO.sellFishByUserFishIdx = function(uidx, userFish, callback){
                         coin = userFish.maxGrowthCoin;
                     }
                     async.parallel([
-                        // 골드 충전
+                        // 코인 증가 
                         function(next){
                             var sql = "UPDATE DB_USER.TB_USER_GAME SET coin=coin+? WHERE idx=?";
                             var query = connection.query(sql, [coin, uidx], function(err){

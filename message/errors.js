@@ -73,5 +73,11 @@ module.exports = {
     {
         code: 2010,
         message: "유저가 존재하지 않습니다"
-    }    
+    },
+
+    ERR_USER_AQUARIUM_NOT_EXIST:
+    {
+        code: 2011,
+        message: "보유하지 않은 수조입니다"
+    }
 };
