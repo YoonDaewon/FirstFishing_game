@@ -21,7 +21,7 @@ function User() { }
 User.login = function (req, res) {
     var func = "Login";
 
-    var device;     // 접속 운영체제 ex) g,i,p
+    var device;     // 접속 운영체제 ex) a:android, i:ios ,p:pc
     var id;         // Device ID
     var platform;   // 연결된 플랫폼
     var platformID; // 플랫폼 ID
@@ -286,11 +286,9 @@ User.lobby = function(req, res){
                 function(next){
 
                 }
-            ])
-
+            ]);
         }
-    ])
-
+    ]);
 };
 
 module.exports = User;

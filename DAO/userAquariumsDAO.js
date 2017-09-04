@@ -175,14 +175,87 @@ UserAquariumsDAO.buyUserAquarium = function(uidx, aquarium, callback){
  * @param uidx
  * @param userAquariumIdx
  * @param aquarium
+ * @param extend_price
  * @param callback
  */
-UserAquariumsDAO.extendAquariumScale = function(uidx, userAquariumIdx, aquarium, callback){
+UserAquariumsDAO.extendAquariumScale = function(uidx, userAquariumIdx, aquarium, extend_price, callback){
     var func = "extendAquariumScale";
 
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.error(uidx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else {
+            connection.beginTransaction(function(err){
+                if(err){
+                    connection.release();
+                    logger.error(uidx, __filename, func, err);
+                    callback(errors.ERR_DB_TRANSACTION);
+                }
+                else {
+                    async.parallel([
+                        // 수조 용량 추가
+                        function(next){
+                            var sql = "UPDATE DB_USER.TB_USER_AQUARIUM SET slot_count=slot_count+2, extend=extend+1 where idx=?";
+                            var query = connection.query(sql, userAquariumIdx, function(err){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    next();
+                                }
+                            });
+                        },
+                        // 구매 금액 삭감
+                        function(next){
+                            var sql = "UPDATE DB_USER.TB_USER_GAME SET";
+                            if(aquarium.price_type === configGame.CURRENCY_TYPE.COIN)
+                                sql += " coin=coin-?";
+                            else
+                                sql += " coral=coral-?";
+                            sql     += " WHERE idx=?";
+                            var query = connection.query(sql, [extend_price, uidx], function(err){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    next();
+                                }
+                            });
+                        }
+                    ],
+                    function(err){
+                        if(err){
+                            connection.rollback(function(){
+                                connection.release();
+                                callback(err);
+                            });
+                        }
+                        else{
+                            connection.commit(function(err){
+                                if(err){
+                                    connection.rollback(function(){
+                                        connection.release();
+                                        logger.error(uidx, __filename, func, err);
+                                        callback(errors.ERR_DB_TRANSACTION);
+                                    });
+                                }
+                                else {
+                                    connection.release();
+                                    callback();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
 };
-
-
-
 
 module.exports = UserAquariumsDAO;

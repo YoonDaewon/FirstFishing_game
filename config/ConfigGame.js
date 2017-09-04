@@ -23,5 +23,11 @@ module.exports = {
         COIN: 'coin',
         PEARL: 'pearl',
         CORAL: 'coral'
-    }
+    },
+
+    AQUARIUM_INFO: {
+        MAX_SLOT: 20,
+        BASIC_SLOT: 10,
+        EXTEND_SLOT: 2
+    }    
 };

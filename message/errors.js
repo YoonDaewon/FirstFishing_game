@@ -79,5 +79,34 @@ module.exports = {
     {
         code: 2011,
         message: "보유하지 않은 수조입니다"
+    },
+
+    ERR_NOT_EXIST_AQUARIUM:
+    {
+        code: 2012,
+        message: "존재하지 않는 수조입니다"
+    },
+
+    ERR_NOT_ENOUGH_COIN:
+    {
+        code: 2013,
+        message: "충분한 코인을 보유하고 있지 않습니다"
+    },
+
+    ERR_NOT_ENOUGH_PEARL:
+    {
+        code: 2014,
+        message: "충분한 펄을 보유하고 있지 않습니다"
+    },
+
+    ERR_NOT_ENOUGH_CORAL:
+    {
+        code: 2015,
+        message: "충분한 코랄을 보유하고 있지 않습니다"
+    },
+
+    ERR_CAN_NOT_EXTEND_AQUARIUM: {
+        code: 2016,
+        message: "수조를 확장할 수 없습니다"
     }
 };
