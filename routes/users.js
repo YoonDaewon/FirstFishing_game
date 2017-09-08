@@ -218,17 +218,17 @@ User.relogin = function (req, res) {
             });
         },
         function(userInfo, callback){
-            if (userInfo.state == configGame.ACCOUNT_STATE.PAUSE) {
+            if (userInfo.state === configGame.ACCOUNT_STATE.PAUSE) {
                 resultObject.code = errors.ERR_ACCOUNT_PAUSE.code;
                 resultObject.pause_time = userInfo.pause_time;
                 callback(null, resultObject);
             }
-            else if (userInfo.state == configGame.ACCOUNT_STATE.BLOCK) {
+            else if (userInfo.state === configGame.ACCOUNT_STATE.BLOCK) {
                 resultObject.code = errors.ERR_ACCOUNT_BLOCK.code;
                 callback(null, resultObject);
             }
             else {
-                if (userInfo.nickname == null) {
+                if (userInfo.nickname === null) {
                     resultObject.code = errors.ERR_NO_NICKNAME.code;
                     callback(null, resultObject);
                 }
