@@ -9,6 +9,11 @@ var configGame = require('../config/ConfigGame')
 var usersDAO = require('../DAO/usersDAO');
 var userPlatformsDAO = require('../DAO/userPlatformsDAO');
 var userGamesDAO = require('../DAO/userGamesDAO');
+var userToolInventoriesDAO = require('../DAO/userToolInventoriesDAO');
+var userItemInventoriesDAO = require('../DAO/userItemInventoriesDAO');
+var userPartnerDAO = require('../DAO/userPartnerDAO');
+var userWaterTanksDAO = require('../DAO/userWaterTanksDAO');
+var aquariumsDAO = require('../DAO/aquariumsDAO');
 
 function User() { }
 
@@ -149,7 +154,7 @@ User.relogin = function (req, res) {
                 usersDAO.readUserIdxFromTB_USER(id, platform, function (err, userIdx) {
                     if (err) {
                         logger.error(id, __filename, func, err);
-                        callback(er);
+                        callback(err);
                     }
                     else {
                         callback(null, userIdx.idx);
@@ -278,17 +283,96 @@ User.lobby = function(req, res){
                         }
                     });
                 },
-                // 장착한 아이템 정보 가져오기
+                // Item 정보
                 function(next){
-
+                    userItemInventoriesDAO.readUserItems(uidx, function(err, userItems){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, userItems);
+                        }
+                    });
+                },
+                // Tool 정보
+                function(next){
+                    userToolInventoriesDAO.readUserTools(uidx, function(err, userTools){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, userTools);
+                        }
+                    });
                 },
                 // 수조정보
                 function(next){
-
+                    userWaterTanksDAO.readUserFishes(uidx, function(err, userFishes){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, userFishes);
+                        }
+                    });
+                },
+                // 파트너 정보
+                function(next){
+                    userPartnerDAO.readPartnerInfo(uidx, function(err, partnerInfo){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, partnerInfo);
+                        }
+                    });
+                },
+                // 파트너 의상 정보
+                function(next){
+                    userPartnerDAO.readPartnerDress(uidx, function(err, partnerDress){
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            next(err);
+                        }
+                        else {
+                            next(null, partnerDress);
+                        }
+                    });
                 }
-            ]);
+            ],
+            function(err, userData){
+                if(err){
+                    callback(err);
+                }
+                else {
+                    var bag = userData[1].concat(userData[2]);
+                    var resultData = {
+                        code: errors.ERR_NONE.code,
+                        game: userData[0],
+                        items: bag,
+                        fishes: userData[3],
+                        partner: userData[4],
+                        dress: userData[5],
+                        server_time: moment().utc().format("YYYY-MM-DD HH:mm:ss")
+                    };
+                    callback(null, resultData);
+                }
+            });
         }
-    ]);
+    ],
+    function(err, result){
+        if(err){
+            res.status(200).send(crypt.encode(err));
+        }
+        else {
+            res.status(200).send(crypt.encode(result));
+        }
+    });
 };
+
 
 module.exports = User;

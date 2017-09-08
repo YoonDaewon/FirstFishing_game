@@ -4,36 +4,35 @@ var moment = require('moment');
 var poolCluster = require('../lib/MySQLPoolCluster').PoolCluster;
 
 var errors = require('../message/errors');
+var config = require('../config/ConfigGame');
 
-function UserItemInventoriesDAO() {}
+function UserPartnerDAO() {}
 
 /**
- * 유저가 장착한 모든 아이템 정보 가져오기
+ * 파트너 정보 불러오기
  * 
  * @param uidx
  * @param callback
  */
-UserItemInventoriesDAO.readUserEquippedItems = function(uidx, callback){
-    var func = "readUserEquippedItems";
+UserPartnerDAO.readPartnerInfo = function(uidx, callback){
+    var func = "readPartnerInfo";
 
-    poolCluster.getConnection(function(err,connection){
+    poolCluster.getConnection(function(err, connection){
         if(err){
             logger.error(uidx, __filename, func, err);
             callback(errors.ERR_DB_CONNECTION);
         }
-        else {
-            var sql = "SELECT idx, item_type, item_idx, reinforce, durability, count";
-            sql     += " FROM DB_USER.TB_USER_ITEM_INVENTORY";
-            sql     += " WHERE user_idx=? AND is_equip='y' AND deleted='n'";
-            var query = connection.query(sql, uidx, function(err, userEquippedItems){
-                connection.release();
+        else{       
+            var sql = "SELECT idx, name, level, exp, max_exp, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8";
+            sql     += " FROM DB_USER.TB_USER_PARTNER WHERE user_idx=?";
+            var query = connection.query(sql, uidx, function(err, partnerInfo){
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);
-                    callback(err);
+                    callback(errors.ERR_DB_QUERY);
                 }
                 else {
-                    callback(null, userEquippedItems);
+                    callback(null, partnerInfo);
                 }
             });
         }
@@ -41,13 +40,13 @@ UserItemInventoriesDAO.readUserEquippedItems = function(uidx, callback){
 };
 
 /**
- * 유저가 보유한 모든 아이템 리스트 가져오기
+ * 파트너 의상 리스트 가져오기
  * 
  * @param uidx
  * @param callback
  */
-UserItemInventoriesDAO.readUserItems = function(uidx, callback){
-    var func = "readUserItems";
+UserPartnerDAO.readPartnerDress = function(uidx, callback){
+    var func = "readPartnerDress";
 
     poolCluster.getConnection(function(err, connection){
         if(err){
@@ -55,68 +54,31 @@ UserItemInventoriesDAO.readUserItems = function(uidx, callback){
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT idx, item_type, item_idx, reinforce, durability, count, is_equip";
-            sql     += " FROM DB_USER.TB_USER_ITEM_INVENTORY";
-            sql     += " WHERE user_idx=? AND deleted='n'";
-            var query = connection.query(sql, uidx, function(err, userItems){
-                connection.release();
+            var sql = "SELECT idx, partner_idx, dress_idx, equip FROM DB_USER.TB_USER_PARTNER_DRESS WHERE user_idx=?";
+            var query = connection.query(sql, uidx, function(err, dressInfo){
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);
                     callback(errors.ERR_DB_QUERY);
                 }
                 else{
-                    callback(null, userItems);
+                    callback(null, dressInfo);
                 }
             });
         }
     });
 };
 
-/**
- * 인덱스를 이용하여 유저 보유 아이템 정보 가져오기
+/** 
+ * 파트너 스킬 레벨업
  * 
  * @param uidx
- * @param item_idx
- * @param callback
- */
-UserItemInventoriesDAO.readUserItemByIdx = function(uidx, item_idx, callback){
-    var func = "readUserItemByIdx";
-
-    poolCluster.getConnection(function(err, connection){
-        if(err) {
-            logger.error(uidx, __filename, func, err);
-            callback(errors.ERR_DB_CONNECTION);
-        }
-        else {
-            var sql = "SELECT idx, item_type, is_equip, reinforce, durability, count";
-            sql     += " FROM DB_USER.TB_USER_ITEM_INVENTORY";
-            sql     += " WHERE user_idx=? AND item_idx=? AND deleted='n'";
-            var query = connection.query(sql, [uidx, item_idx], function(err, userItem){
-                connection.release();
-                logger.debug(uidx, __filename, func, query.sql);
-                if(err){
-                    logger.error(uidx, __filename, func, err);
-                    callback(errors.ERR_DB_QUERY);
-                }
-                else{
-                    callback(null, userItem);
-                }
-            });
-        }
-    });
-}
-
-/**
- * 아이템 판매
- * 
- * @param uidx
- * @param userItemIdx
+ * @param skillIdx
  * @param price
  * @param callback
  */
-UserItemInventoriesDAO.sellUserItem = function(uidx, userItemIdx, price, callback){
-    var func = "sellUserItem";
+UserPartnerDAO.partnerSkillUp = function(uidx, skillIdx, price, callback){
+    var func = "partnerSkillUp";
 
     poolCluster.getConnection(function(err, connection){
         if(err){
@@ -132,10 +94,11 @@ UserItemInventoriesDAO.sellUserItem = function(uidx, userItemIdx, price, callbac
                 }
                 else {
                     async.parallel([
-                        // 아이템 판매 처리
+                        // 스킬 레벨업
                         function(next){
-                            var sql = "UPDATE DB_USER.TB_USER_ITEM_INVENTORY SET deleted='y' WHERE idx=?";
-                            var query = connection.query(sql, userItemIdx, function(err){
+                            var sql = "UPDATE DB_USER.TB_USER_PARTNER SET ";
+                            sql     += "skill_" + skillIdx + "=skill_" + skillIdx + "+1 WHERE user_idx=?";
+                            var query = connection.query(sql, uidx, function(err){
                                 logger.debug(uidx, __filename, func, query.sql);
                                 if(err){
                                     logger.error(uidx, __filename, func, err);
@@ -146,9 +109,9 @@ UserItemInventoriesDAO.sellUserItem = function(uidx, userItemIdx, price, callbac
                                 }
                             });
                         },
-                        // 재화 변경
+                        // coin 감소
                         function(next){
-                            var sql = "UPDATE DB_USER.TB_USER_GAME SET coin=coin+? WHERE idx=?";
+                            var sql = "UPDATE DB_USER.TB_USER_GAME SET coin=coin-? WHERE idx=?";
                             var query = connection.query(sql, [price, uidx], function(err){
                                 logger.debug(uidx, __filename, func, query.sql);
                                 if(err){
@@ -168,7 +131,7 @@ UserItemInventoriesDAO.sellUserItem = function(uidx, userItemIdx, price, callbac
                                 callback(err);
                             });
                         }
-                        else {
+                        else{
                             connection.commit(function(err){
                                 if(err){
                                     connection.rollback(function(){
@@ -191,14 +154,15 @@ UserItemInventoriesDAO.sellUserItem = function(uidx, userItemIdx, price, callbac
 };
 
 /**
- * 아이템 장착
+ * 파트너 의상 변경
  * 
  * @param uidx
- * @param item {idx, item_type}
+ * @param partnerIdx
+ * @param dressIdx
  * @param callback
  */
-UserItemInventoriesDAO.equipItem = function(uidx, item, callback){
-    var func ="equipItem";
+UserPartnerDAO.changeDress = function(uidx, partnerIdx, dressIdx, callback){
+    var func = "changeDress";
 
     poolCluster.getConnection(function(err, connection){
         if(err){
@@ -214,10 +178,10 @@ UserItemInventoriesDAO.equipItem = function(uidx, item, callback){
                 }
                 else {
                     async.waterfall([
-                        // 장착한 Item 해제
+                        // 장착하고 있는 의상 해제
                         function(cb){
-                            var sql = "UPDATE DB_USER.TB_USER_ITEM_INVENTORY SET is_equip='n' WHERE item_type=? AND is_equip='y' AND user_idx=?";
-                            var query = connection.query(sql, [item.item_type, uidx], function(err){
+                            var sql = "UPDATE DB_USER.TB_USER_PARTNER_DRESS SET equip='n' WHERE partner_idx=? AND equip='y'";
+                            var query = connection.query(sql, partnerIdx, function(err){
                                 logger.debug(uidx, __filename, func, query.sql);
                                 if(err){
                                     logger.error(uidx, __filename, func, err);
@@ -228,16 +192,16 @@ UserItemInventoriesDAO.equipItem = function(uidx, item, callback){
                                 }
                             });
                         },
-                        // 새로운 아이템 장착
+                        // 새로운 의상 착용
                         function(cb){
-                            var sql = "UPDATE DB_USER.TB_USER_ITEM_INVENTORY SET is_equip='y' WHERE idx=?";
-                            var query = connection.query(sql, item.idx, function(err){
+                            var sql = "UPDATE DB_USER.TB_USER_PARTNER_DRESS SET equip='y' WHERE partner_idx=? AND dress_idx=?";
+                            var query = connection.query(sql, [partnerIdx, dressIdx], function(err){
                                 logger.debug(uidx, __filename, func, query.sql);
                                 if(err){
                                     logger.error(uidx, __filename, func, err);
                                     cb(errors.ERR_DB_QUERY);
                                 }
-                                else{
+                                else {
                                     cb();
                                 }
                             });
@@ -272,4 +236,4 @@ UserItemInventoriesDAO.equipItem = function(uidx, item, callback){
     });
 };
 
-module.exports = UserItemInventoriesDAO;
+module.exports = UserPartnerDAO;

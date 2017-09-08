@@ -7,6 +7,40 @@ var errors = require('../message/errors');
 var config = require('../config/ConfigGame');
 
 function UserWaterTanksDAO() {}
+
+/**
+ * 유저가 보유한 모든 물고기 가져오기
+ * 
+ * @param uidx
+ * @param callback
+ */
+UserWaterTanksDAO.readUserFishes = function(uidx, callback){
+    var func = "readUserFishes";
+
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.error(uidx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else{
+            var shardTable = uidx % parseInt(serverEnv.SHARD_COUNT);
+            var sql = "SELECT idx, user_aquarium_idx, fish_idx, size, location, buff_coim, is_lock, is_set, max_time";
+            sql     += " FROM DB_USER.TB_USER_FISH_TANK_" + shardTable;
+            sql     += " WHERE user_idx=? AND deleted='n'";
+            var query = connection.query(sql, uidx, function(err, userFishes){
+                logger.debug(uidx, __filename, func, query.sql);
+                if(err){
+                    logger.error(uidx, __filename, func, err);
+                    callback(errors.ERR_DB_QUERY);
+                }
+                else{
+                    callback(null, userFishes);
+                }
+            });
+        }
+    });
+};
+
 /**
  * 해당 물고기 구체적 정보 가져오기
  * 

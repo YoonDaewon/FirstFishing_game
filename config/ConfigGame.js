@@ -8,7 +8,9 @@ module.exports = {
     SERVER_ENV: {
         HOOK_CHARGE_TIME: 900,
         HOOK_COUNT: 10,
-        SHARD_COUNT: 10
+        SHARD_COUNT: 10,
+        RETRY_CURRENCY: 20,
+        MAX_DURABILITY: 20
     },
     
     ITEM_TYPE: {

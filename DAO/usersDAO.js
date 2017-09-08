@@ -189,7 +189,7 @@ UsersDAO.createUser = function (newData, callback) {
                                             cb(err);
                                         }
                                         else {
-                                            cb(err);
+                                            cb();
                                         }
                                     });
                                 },
@@ -210,7 +210,7 @@ UsersDAO.createUser = function (newData, callback) {
                                             cb(err);
                                         }
                                         else{
-                                            cb(err);
+                                            cb();
                                         }
                                     });
                                 }
