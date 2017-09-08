@@ -207,7 +207,7 @@ User.relogin = function (req, res) {
         },
         function (userIdx, callback) {
             // 블락 여부, 닉네임 체크
-            usersDAO.CheckAccountState(userIdx, function (err, userInfo) {
+            usersDAO.CheckAccountState(userIdx.idx, function (err, userInfo) {
                 if (err) {
                     logger.error(id, __filename, func, err);
                     callback(err);
