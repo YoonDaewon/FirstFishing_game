@@ -368,7 +368,7 @@ UsersDAO.CheckAccountState = function(user_idx, callback){
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT nickname, state, pause_time FROM DB_USER.TB_USER where idx=?";
+            var sql = "SELECT nickname, state, pause_time FROM DB_USER.TB_USER WHERE idx=?";
             var query = connection.query(sql, user_idx, function(err, user){
                 connection.release();
                 logger.debug(user_idx, __filename, func, query.sql);
