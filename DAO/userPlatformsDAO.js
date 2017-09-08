@@ -54,7 +54,7 @@ UserPlatFormsDAO.ReadUserIdxByPlatformID = function(id, platform, platformID, ca
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT user_idx";
+            var sql = "SELECT user_idx AS idx";
             sql    += " FROM DB_USER.TB_USER_PLATFORM WHERE platform=? AND platform_id=? AND deleted='n'";
             var query = connection.query(sql, [platform, platformID], function(err, userPlatform){
                 connection.release();
