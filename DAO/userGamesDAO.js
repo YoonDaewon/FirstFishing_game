@@ -34,7 +34,7 @@ UserGamesDAO.readUserGameInfo = function(uidx, callback){
                         function(next){
                             // 유저 정보를 가져옴           
                             var sql = "SELECT level, exp, total_exp, vip_level, vip_exp, vip_total_exp, coin, pearl, coral, hook,";
-                            sql     += " TIMESTAMPDIFF(SECOND, hook_charged_time, NOW()) AS diff_time,";
+                            sql     += " TIMESTAMPDIFF(SECOND, hook_charged_time, NOW()) AS diff_time";
                             sql     += " FROM DB_USER.TB_USER_GAME WHERE idx=?";
                             var query = connection.query(sql, uidx, function(err, userGame){
                                 logger.debug(uidx, __filename, func, query.sql);
