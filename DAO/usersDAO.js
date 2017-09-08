@@ -22,7 +22,7 @@ UsersDAO.readUserIdxFromTB_USER = function (id, platform, callback) {
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT idx FROM DB_USER.TB_USER WHERE id=? AND platform=? AND block='n'";
+            var sql = "SELECT idx, state FROM DB_USER.TB_USER WHERE id=? AND platform=? AND block='n'";
             var query = connection.query(sql, [id, platform], function (err, user) {
                 connection.release();
                 logger.debug(id, __filename, func, query.sql);
