@@ -55,7 +55,7 @@ UserItemInventoriesDAO.readUserItems = function(uidx, callback){
             callback(errors.ERR_DB_CONNECTION);
         }
         else {
-            var sql = "SELECT idx, item_type, item_idx, reinforce, durability, count, is_equip";
+            var sql = "SELECT idx, item_type, item_idx, count, is_equip";
             sql     += " FROM DB_USER.TB_USER_ITEM_INVENTORY";
             sql     += " WHERE user_idx=? AND deleted='n'";
             var query = connection.query(sql, uidx, function(err, userItems){
