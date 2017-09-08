@@ -163,7 +163,7 @@ UsersDAO.createUser = function (newData, callback) {
                                     var InsertData = {
                                         idx: userIdx
                                     };
-                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME SET ?, created=NOW()";
+                                    var sql = "INSERT INTO DB_USER.TB_USER_GAME SET ?, hook_charged_time=NOW(), created=NOW()";
                                     var query = connection.query(sql, InsertData, function(err){
                                         logger.debug(id, __filename, func, query.sql);
                                         if(err){
