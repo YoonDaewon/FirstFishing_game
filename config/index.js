@@ -29,6 +29,15 @@ var all = {
             debug: "blue",
             error: "red"
         }
+    },
+
+    // 결제 영수증 유효 체크 
+    receipt: {
+        google: "",
+        apple: {
+            password: "",
+            production: true
+        }
     }
 };
 

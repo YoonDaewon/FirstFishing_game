@@ -14,11 +14,14 @@ module.exports = {
     },
     
     ITEM_TYPE: {
-        REEL: 'reel',
-        ROD: 'rod',
-        FISH_LINE: 'fish_line',
-        LURE: 'lure',
-        CAPSULE: 'capsule'
+        REEL: 2,
+        ROD: 1,
+        FISH_LINE: 4,
+        LURE: 3,
+        CAPSULE_COIN: 5,
+        CAPSULE_EXP: 6,
+        CAPSULE_FISH: 7,
+        CAPSULE_DMG: 8
     },
 
     CURRENCY_TYPE: {

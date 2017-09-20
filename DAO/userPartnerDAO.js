@@ -236,4 +236,89 @@ UserPartnerDAO.changeDress = function(uidx, partnerIdx, dressIdx, callback){
     });
 };
 
+/**
+ * 파트너 호감도 상승
+ * 
+ * @param uidx
+ * @param partnerIdx
+ * @param exp
+ * @param callback
+ */
+UserPartnerDAO.increaseExp = function(uidx, partnerIdx, exp, callback){
+    var func = "increaseExp";
+
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.error(uidx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else {
+            async.waterfall([
+                // 파트너 정보 불러오기
+                function(callback){
+                    var sql = "SELECT level, exp, max_exp FROM DB_USER.TB_USER_PARTNER WHERE idx=?";
+                    var query = connection.query(sql, partnerIdx, function(err, partnerInfo){
+                        logger.debug(uidx, __filename, func, query.sql);
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            callback(errors.ERR_DB_QUERY);
+                        }
+                        else {
+                            if(!partnerInfo[0]){
+                                logger.error(uidx, __filename, func, err);
+                                callback(errors.ERR_NOT_EXIST_PARTNER);
+                            }
+                            else {
+                                callback(null, partnerInfo[0]);
+                            }
+                        }
+                    });
+                },
+                // 레벨 및 경험치 계산
+                function(partnerInfo, callback){
+                    var updateData = {};
+                    
+                    updateData.level = partnerInfo.level;
+                    updateData.exp = partnerInfo.exp + exp;
+                    while( updateData.exp >= partnerLevel[updateData.level].need_exp){
+                        if(updateData.level != 100){
+                            updateData.exp = updateData.exp - partnerLevel[updateData.level].need_exp;
+                            updateData.level++;
+                            updateData.max_exp = partnerLevel[updateData.level].need_exp;
+                        }
+                        else{
+                            updateData.exp = 0;
+                        }                        
+                    }
+                    callback(null, updateData);
+                },
+                // 레벨 및 경험치 변경 
+                function(updateData, callback){
+                    var sql = "UPDATE DB_USER.TB_USER_PARTNER SET ? WHERE idx=?";
+                    var query = connection.query(sql, [updateData, partnerIdx], function(err){
+                        connection.release();
+                        logger.debug(uidx, __filename, func, query.sql);
+                        if(err){
+                            logger.error(uidx, __filename, func, err);
+                            callback(errors.ERR_DB_QUERY);
+                        }
+                        else{
+                            callback();
+                        }
+                    });
+                }
+            ],
+            function(err){
+                if(err){
+                    logger.error(uidx, __filename, func, err);
+                    callback(err);
+                }
+                else{
+                    callback();
+                }
+            });
+        }
+    });
+};
+
 module.exports = UserPartnerDAO;

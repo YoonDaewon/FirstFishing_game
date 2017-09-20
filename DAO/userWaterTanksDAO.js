@@ -510,26 +510,19 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                     async.parallel([
                         function(next){
                             var updateGameData = {};
-                            var levelUpFlag = false;
                             async.waterfall([
                                 // 장착한 경험치 캡슐 옵션 적용
                                 function(nnext){
-                                    var sql = "SELECT B.bData10 FROM DB_USER.TB_USER_TOOL_INVENTORY A, DB_GAME_DATA.TB_ITEM B";
+                                    var sql = "SELECT B.bData10 FROM DB_USER.TB_USER_ITEM_INVENTORY A, DB_GAME_DATA.TB_ITEM B";
                                     sql     += " WHERE A.user_idx=? AND A.item_type=? AND is_equip='y' AND A.item_idx=B.wRefID";
-                                    var query = connection.query(sql, [uidx, config.ITEM_TYPE.CAPSULE], function(err, userCapsule){
+                                    var query = connection.query(sql, [uidx, config.ITEM_TYPE.CAPSULE_EXP], function(err, userCapsule){
                                         logger.debug(uidx, __filename, func, query.sql);
                                         if(err){
                                             logger.error(uidx, __filename, func, err);
                                             nnext(err);
                                         }
                                         else{
-                                            if(!userCapsule[0]){
-                                                logger.error(uidx, __filename, func, errors.ERR_CAN_NOT_EQUIP_ITEM);
-                                                callback(errors.ERR_CAN_NOT_EQUIP_ITEM);
-                                            }
-                                            else{
-                                                nnext(null, userCapsule[0]);
-                                            }                                            
+                                            nnext(null, userCapsule[0]);                                  
                                         }
                                     });                                                                      
                                 },
@@ -548,12 +541,12 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                                 nnext(errors.ERR_USER_NOT_EXIST);
                                             }
                                             else{
-                                                updateGameData.exp = userGame[0].exp + fish.exp + Math.floor(fish.exp*userCapsule.bData10/100);
+                                                if(!userCapsule) updateGameData.exp = userGame[0].exp + fish.exp + Math.floor(fish.exp*userCapsule.bData10/100);
+                                                else updateGameData.exp = userGame[0].exp + fish.exp;
                                                 if(updateGameData.exp >= userGame[0].total_exp){
                                                     updateGameData.hook = userGame[0].hook;
                                                     // 만랩이 아니면 레벨업, 아니면 경험치 및 hook만 채워줌
                                                     if(gameLevel[userGame[0].level+1]){
-                                                        levelUpFlag = true;
                                                         updateGameData.level = userGame[0].level+1;
                                                         updateGameData.exp = updateGameData.exp-userGame[0].total_exp;
                                                         updateGameData.total_exp = gameLevel[updateGameData.level].need_exp;
@@ -583,7 +576,7 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                             nnext(err);
                                         }
                                         else{
-                                            nnext(err);
+                                            nnext();
                                         }
                                     });
                                 }

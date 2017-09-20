@@ -115,4 +115,37 @@ UserGamesDAO.readUserGameInfo = function(uidx, callback){
     });
 };
 
+/**
+ * 코인 사용 처리
+ * 
+ * @param uidx
+ * @param price
+ * @param callback
+ */
+UserGamesDAO.useCoin = function(uidx, price, callback){
+    var func = "useCoin";
+
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.error(uidx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else {
+            var sql = "UPDATE DB_USER.TB_USER_GAME SET coin=coin-? WHERE idx=?";
+            var query = connection.query(sql, [price, uidx], function(err){
+                connection.release();
+                logger.debug(uidx, __filename, func, query.sql);
+                if(err){
+                    logger.error(uidx, __filename , func, err);
+                    callback(errors.ERR_DB_QUERY);
+                }
+                else{
+                    callback();
+                }
+            });
+        }
+    });
+};
+
+
 module.exports = UserGamesDAO;

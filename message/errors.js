@@ -54,6 +54,11 @@ module.exports = {
         message: "유저 정보가 없음"
     },
 
+    ERR_NOT_EXIST_PARTNER: {
+        code: 1011,
+        message: "파트너가 존재하지 않습니다"
+    },
+
     ERROR_MAINTENANCE: {
         code: 1998,
         message: "현재 유지 보수 중입니다"
@@ -108,5 +113,10 @@ module.exports = {
     ERR_CAN_NOT_EXTEND_AQUARIUM: {
         code: 2016,
         message: "수조를 확장할 수 없습니다"
+    },
+    ERR_NOT_EXIST_ITEM:
+    {
+        code: 2017,
+        message: "아이템이 존재하지 않습니다."
     }
 };
