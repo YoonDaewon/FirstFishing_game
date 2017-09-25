@@ -118,5 +118,20 @@ module.exports = {
     {
         code: 2017,
         message: "아이템이 존재하지 않습니다."
+    },
+    ERR_ALREADY_EXIST_RECEIPT:
+    {
+        code: 2018,
+        message: "이미 존재하는 영수증입니다."
+    },
+    ERR_INVALID_RECEIPT:
+    {
+        code: 2019,
+        message: "유효하지 않은 영수증입니다."
+    },
+    ERR_INVALID_DB_DATA:
+    {
+        code: 2020,
+        message: "유효하지 않은 DB 데이터 입니다."
     }
 };

@@ -21,18 +21,39 @@ module.exports = {
         CAPSULE_COIN: 5,
         CAPSULE_EXP: 6,
         CAPSULE_FISH: 7,
-        CAPSULE_DMG: 8
+        CAPSULE_DMG: 8,
+        CURRENCY: 9,
+        CHEST: 10
     },
 
     CURRENCY_TYPE: {
         COIN: 'coin',
         PEARL: 'pearl',
-        CORAL: 'coral'
+        CORAL: 'coral',
+        HOOK: 'hook'
+    },
+
+    CURRENCY_IDX:{
+        COIN: 1,
+        PEARL: 2,
+        CORAL: 3,
+        HOOL: 4
     },
 
     AQUARIUM_INFO: {
         MAX_SLOT: 20,
         BASIC_SLOT: 10,
         EXTEND_SLOT: 2
-    }    
+    },
+    PLATFORM_PARAM: {
+        APPLE: "a",
+        GOOGLE: "g",
+        FACEBOOK: "f"
+    },
+    PLATFORM_DATA: {
+        APPLE: "apple",
+        GOOGLE: "google",
+        FACEBOOK: "facebook",
+        GUEST: "guest"
+    }
 };

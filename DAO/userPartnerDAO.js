@@ -26,6 +26,7 @@ UserPartnerDAO.readPartnerInfo = function(uidx, callback){
             var sql = "SELECT idx, name, level, exp, max_exp, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8";
             sql     += " FROM DB_USER.TB_USER_PARTNER WHERE user_idx=?";
             var query = connection.query(sql, uidx, function(err, partnerInfo){
+                connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);
@@ -56,6 +57,7 @@ UserPartnerDAO.readPartnerDress = function(uidx, callback){
         else {
             var sql = "SELECT idx, partner_idx, dress_idx, equip FROM DB_USER.TB_USER_PARTNER_DRESS WHERE user_idx=?";
             var query = connection.query(sql, uidx, function(err, dressInfo){
+                connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);

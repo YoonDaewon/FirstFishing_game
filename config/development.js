@@ -22,5 +22,11 @@ module.exports = {
         state: true,
         key: "C0LTUK3mgDyjzAB09Ui8BIwTCkkR2sbJ06OnKvJq84M=",
         iv: "hJrN5XisGO652h2pFNSZ6A=="
+    },
+    receipt: {
+        apple: {
+            production: false,
+            debug: true
+        }
     }
 };

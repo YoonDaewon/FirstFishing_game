@@ -66,6 +66,7 @@ AquariumsDAO.readExtendCost = function(uidx, aquariumIdx, aquariumExtend, callba
             var extend = aquariumExtend + 1;
             var sql = "SELECT price_" + extend + " AS price FROM DB_GAME_DATA.TB_AQUARIUM WHERE idx=?";
             var query = connection.query(sql, aquariumIdx, function(err, extend_price){
+                connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);

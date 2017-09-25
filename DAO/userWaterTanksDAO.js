@@ -28,6 +28,7 @@ UserWaterTanksDAO.readUserFishes = function(uidx, callback){
             sql     += " FROM DB_USER.TB_USER_FISH_TANK_" + shardTable;
             sql     += " WHERE user_idx=? AND deleted='n'";
             var query = connection.query(sql, uidx, function(err, userFishes){
+                connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);
@@ -469,6 +470,7 @@ UserWaterTanksDAO.moveAquarium = function(uidx, userFish, aquariumData, callback
 
             var sql = "UPDATE DB_USER.TB_USER_FISH_TANK_" + shardTable + " SET max_time=(NOW()+ INTERVAL ? SECOND), user_aquarium_idx=? WHERE idx=?";
             var query = connection.query(sql, [left_time, aquariumData.newIdx, userFish.idx], function(err){
+                connection.release();
                 logger.debug(uidx, __filename, func, query.sql);
                 if(err){
                     logger.error(uidx, __filename, func, err);
