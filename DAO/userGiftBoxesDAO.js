@@ -377,7 +377,7 @@ UserGiftBoxesDAO.receiveGift = function(uidx, userGift, callback){
  * @param userGifts
  * @param callback
  */
-UserGiftBoxesDAO.receiveAllGift = function(uidxm, userGifts, callback){
+UserGiftBoxesDAO.receiveAllGift = function(uidx, userGifts, callback){
     var func = "receiveGiftByTab";
 
     poolCluster.getConnection(function(err, connection){
@@ -637,9 +637,9 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
                                         var ratio;
                                         
                                         for(var i=0 ; i < giftRatio.length ; i++){
-                                            ratio = giftRatio[i]["gift_ratio"];
+                                            ratio = giftRatio[i].gift_ratio;
                                             for(var j=0 ; j < ratio ; j++){
-                                                boxArray.push(giftRatio[i]["gift_idx"]);
+                                                boxArray.push(giftRatio[i].gift_idx);
                                             }
                                         }
                                         var shuffleArray = util.shuffle(boxArray);
@@ -650,7 +650,7 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
                                 }
                             });
                         },
-                        // 선택된 선물의 종류, 양 검색
+                        // 선택된 선물의 종류에 따라 재화 증가 처리
                         function(gift_id, next){
                             var sql = "SELECT item_idx, item_cnt FROM DB_GAME_DATA.TB_GIFT_BOX WHERE giftbox_idx=? AND gift_idx=?";
                             var query = connection.query(sql, [userGift.item_idx, gift_id], function(err, giftReward){
@@ -660,12 +660,39 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
                                     next(errors.ERR_DB_QUERY);
                                 }
                                 else{
-                                    next(null, giftReward[0]);
+                                    if(!giftReward[0]){
+                                        logger.error(uidx, __filename, func, errors.ERR_INVALID_DB_DATA);
+                                        next(errors.ERR_INVALID_DB_DATA);
+                                    }
+                                    else{
+                                        if(giftReward[0].item_idx === configGame.CURRENCY_IDX.COIN){
+                                            sql = "UPDATE DB_USER.TB_USER_GAME SET coin=coin+? WHERE idx=?";
+                                        }
+                                        else if(giftReward[0].item_idx === configGame.CURRENCY_IDX.PEARL){
+                                            sql = "UPDATE DB_USER.TB_USER_GAME SET pearl=pearl+? WHERE idx=?";
+                                        }
+                                        else if(giftReward[0].item_idx === configGame.CURRENCY_IDX.CORAL){
+                                            sql = "UPDATE DB_USER.TB_USER_GAME SET coral=coral+? WHERE idx=?";
+                                        }
+                                        else {
+                                            sql = "UPDATE DB_USER.TB_USER_GAME SET hook=hook+? WHERE idx=?";
+                                        }
+                                        query = connection.query(sql, [giftReward[0].item_cnt, uidx], function(err){
+                                            logger.debug(uidx, __filename, func, query.sql);
+                                            if(err){
+                                                logger.error(uidx, __filename, func, err);
+                                                next(errors.ERR_DB_QUERY);
+                                            }
+                                            else{
+                                                next();
+                                            }
+                                        });
+                                    }
                                 }
                             });
                         },
                         // 해당 선물 삭제
-                        function(giftReward, next){
+                        function(next){
                             var shardTable = uidx % parseInt(serverEnv.SHARD_COUNT);
                             var sql = "UPDATE DB_USER.TB_USER_GIFT_BOX_" + shardTable + " SET deleted='y'";
                             sql     += " WHERE user_idx=? AND deleted='n' AND idx=?";
@@ -676,24 +703,36 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
                                     next(errors.ERR_DB_QUERY);
                                 }
                                 else{
-                                    next(null, giftReward);
+                                    next();
                                 }
                             });
-                        },
+                        },                        
                         // 선물 로그 생성
-                        function(giftReward, next){
+                        function(next){
                             var logData = {
                                 item_type: userGift.item_type,
                                 item_idx: userGift.item_idx,
-                                reward_type: giftReward.item_idx,
-                                reward_count: giftReward.item_cnt,
                                 type: "RECEIVE CHEST"
                             };
                             logger.info(uidx, __filename, func, logData);
-                            next(null, giftReward);
+                            next();
+                        },
+                        // 변경된 유저 정보 전송
+                        function(next){
+                            var sql = "SELECT coin, pearl, coral, hook FROM DB_USER.TB_USER_GAME WHERE idx=?";
+                            var query = connection.query(sql, uidx, function(err, userGame){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    next(null, userGame[0]);
+                                }
+                            });
                         }
                     ],
-                    function(err, giftReward){
+                    function(err, userGame){
                         if(err){
                             connection.rollback(function(){
                                 connection.release();
@@ -711,7 +750,7 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
                                 }
                                 else{
                                     connection.release();
-                                    callback(null, giftReward);
+                                    callback(null, userGame);
                                 }
                             });
                         }
@@ -722,4 +761,104 @@ UserGiftBoxesDAO.receiveChest = function(uidx, userGift, callback){
     });
 };
  
+/**
+ * Hook 한번에 모두 받기
+ * 
+ * @param uidx
+ * @param userGifts
+ * @param callback
+ */
+UserGiftBoxesDAO.receiveAllHooks = function(uidx, userGifts, callback){
+    var func = "receiveAllHooks";
+
+    poolCluster.getConnection(function(err, connection){
+        if(err){
+            logger.error(uidx, __filename, func, err);
+            callback(errors.ERR_DB_CONNECTION);
+        }
+        else{
+            connection.beginTransaction(function(err){
+                if(err){
+                    connection.release();
+                    logger.error(uidx, __filename, func, err);
+                    callback(errors.ERR_DB_TRANSACTION);
+                }
+                else{
+                    async.parallel([
+                        // Hook 모두 받기
+                        function(next){
+                            var totalHook = 0;
+                            for(var i=0; i < userGifts.length; i++){
+                                totalHook += userGifts[i].item_count;
+                            }
+                            var sql = "UPDATE DB_USER.TB_USER_GAME SET hook=hook+? WHERE idx=?";
+                            var query = connection.query(sql, [totalHook, uidx], function(err){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    next(null, totalHook);
+                                }
+                            });
+                        },
+                        // 받은 선물 모두 삭제
+                        function(next){
+                            var shardTable = uidx % parseInt(serverEnv.SHARD_COUNT);
+                            var sql = "UPDATE DB_USER.TB_USER_GIFT_BOX_" + shardTable + " SET deleted='y' WHERE user_idx=? AND deleted='n' AND item_idx=?";
+                            var query = connection.query(sql, [uidx, configGame.CURRENCY_IDX.HOOK], function(err){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    next();
+                                }
+                            })
+                        },
+                        // 선물 받은 로그 남기기
+                        function(next){
+                            for(var i in userGifts) {
+                                var logData = {
+                                    item_type: userGifts[i].item_type,
+                                    item_idx: userGifts[i].item_idx,
+                                    item_count: userGifts[i].item_count,
+                                    type: "RECEIVE_GIFT_HOOK"
+                                };
+                                logger.info(uidx, __filename, func, logData);
+                            }
+                            next();   
+                        }
+                    ],
+                    function(err, totalHook){
+                        if(err){
+                            connection.rollback(function(){
+                                connection.release();
+                                callback(err);
+                            });
+                        }
+                        else{
+                            connection.commit(function(err){
+                                if(err){
+                                    connection.rollback(function(){
+                                        connection.release();
+                                        logger.error(uidx, __filename, func, err);
+                                        callback(errors.ERR_DB_TRANSACTION);
+                                    });
+                                }
+                                else{
+                                    connection.release();
+                                    callback(null, totalHook[0]);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
+
 module.exports = UserGiftBoxesDAO;

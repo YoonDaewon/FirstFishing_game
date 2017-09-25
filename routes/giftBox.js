@@ -198,5 +198,130 @@ GiftBox.receiveAllGift = function(req, res){
     });
 };
 
+/**
+ * 상자 선물 받기
+ * 
+ * @param req
+ * @param res
+ */
+GiftBox.receiveChest = function(req, res){
+    var func = "receiveChest";
+
+    var uidx;
+    var userGift;
+
+    async.waterfall([
+        // 파라메터 체크
+        function(callback){
+            uidx = req.body.data.uidx;
+            userGift = req.body.data.userGift;
+
+            if(uidx && userGift){
+                callback();
+            }
+            else {
+                logger.error(uidx, __filename, func, errors.ERR_EMPTY_PARAMS);
+                callback(errors.ERR_EMPTY_PARAMS);
+            }
+        },
+        // 상자 열어서 수령 후, 바뀐 정보 받기
+        function(callback){
+            userGiftBoxesDAO.receiveChest(uidx, userGift, function(err, userGame){
+                if(err){
+                    logger.error(uidx, __filename, func, err);
+                    callback(err);
+                }
+                else{
+                   var resultObject = {
+                       code: errors.ERR_NONE.code,
+                       coin: userGame.coin,
+                       pearl: userGame.pearl,
+                       coral: userGame.cora,
+                       hook: userGame.hook
+                   };
+                   callback(null, resultObject);
+                }
+            });
+        }
+    ],
+    function(err, result){
+        if(err){
+            res.status(200).send(crypt.encode(err));
+        }
+        else{
+            res.status(200).send(crypt.encode(result));
+        }
+    });
+};
+
+/**
+ * HOOK 모두 받기
+ * 
+ * @param req
+ * @param res
+ */
+GiftBox.receiveAllHools = function(req, res){
+    var func = "receiveAllHools";
+
+    var uidx;
+    var userGifts;
+
+    async.waterfall([
+        // 파라메터 체크
+        function(callback){
+            uidx = req.body.data.uidx;
+            userGifts = req.body.data.userGifts;
+
+            if(uidx && userGifts){
+                callback();
+            }
+            else{
+                logger.error(uidx, __filename, func, errors.ERR_EMPTY_PARAMS);
+                callback(errors.ERR_EMPTY_PARAMS);
+            }
+        },
+        // Hook 모두 받고 받은 개수 받기
+        function(callback){
+            userGiftBoxesDAO.receiveAllHooks(uidx, userGifts, function(err, totalHook){
+                if(err){
+                    logger.error(uidx, __filename, func, err);
+                    callback(err);
+                }
+                else{
+                    callback(null, totalHook);
+                }
+            });
+        },
+        // 바뀐 게임 정보 가져오기
+        function(totalHook, callback){
+            userGamesDAO.readUserGameInfo(uidx, function(err, userGame){
+                if(err){
+                    logger.error(uidx, __filename, func, err);
+                    callback(err);
+                }
+                else{
+                    var resultObject = {
+                        code: errors.ERR_NONE.code,
+                        coin: userGame.coin,
+                        pearl: userGame.pearl,
+                        coral: userGame.coral,
+                        hook: userGame.hook,
+                        recv_hook: totalHook
+                    };
+                    callback(null, resultObject);
+                }
+            });
+        }
+    ],
+    function(err, result){
+        if(err){
+            res.status(200).send(crypt.encode(err));
+        }
+        else{
+            res.status(200).send(crypt.encode(result));
+        }
+    });
+};
+
 
 module.exports = GiftBox;

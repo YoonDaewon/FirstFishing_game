@@ -34,10 +34,10 @@ module.exports = {
     },
 
     CURRENCY_IDX:{
-        COIN: 1,
-        PEARL: 2,
-        CORAL: 3,
-        HOOL: 4
+        COIN: 6101,
+        PEARL: 6301,
+        CORAL: 6201,
+        HOOL: 6001
     },
 
     AQUARIUM_INFO: {
@@ -55,5 +55,6 @@ module.exports = {
         GOOGLE: "google",
         FACEBOOK: "facebook",
         GUEST: "guest"
-    }
+    },
+
 };
