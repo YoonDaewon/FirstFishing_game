@@ -66,7 +66,7 @@ UserGamesDAO.readUserGameInfo = function(uidx, callback){
                                     userGame.diff_time = 0;
                                 }
                                 else {
-                                    userGame.diif_time -= (configGame.SERVER_ENV.HOOK_CHARGE_TIME * addHookCount);
+                                    userGame.diff_time -= (configGame.SERVER_ENV.HOOK_CHARGE_TIME * addHookCount);
                                 }
                                 var sql = "UPDATE DB_USER.TB_USER_GAME SET hook=?, hook_charged_time=TIMESTAMPADD(SECOND, ?, hook_charged_time) WHERE idx=?";
                                 var query = connection.query(sql,[userGame.hook, configGame.SERVER_ENV.HOOK_CHARGE_TIME * addHookCount, uidx], function(err){
