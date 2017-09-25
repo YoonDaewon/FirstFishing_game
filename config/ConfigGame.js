@@ -37,7 +37,8 @@ module.exports = {
         COIN: 6101,
         PEARL: 6301,
         CORAL: 6201,
-        HOOL: 6001
+        HOOL: 6001,
+        CHEST: 6401
     },
 
     AQUARIUM_INFO: {

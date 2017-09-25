@@ -335,7 +335,7 @@ UserWaterTanksDAO.sellMaxSizeFishes = function(uidx, userAquariumIdx, callback){
                             var query = connection.query(sql, [userAquariumIdx, uidx], function(err, userFishes){
                                 logger.debug(uidx, __filename, func, query.sql);
                                 if(err){
-                                    logger.eroor(uidx, __filename, func, err);
+                                    logger.error(uidx, __filename, func, err);
                                     cb(errors.ERR_DB_QUERY);
                                 }
                                 else {
@@ -598,8 +598,8 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                 user_idx: uidx,
                                 user_aquarium_idx: userAquariumIdx.idx,
                                 fish_idx: fish.fish_idx,
-                                exp: fish.exp,
-                                size: fish.size
+                                size: fish.size,
+                                location: fish.map_idx
                             };
                             var shardTable = uidx % parseInt(serverEnv.SHARD_COUNT);
                             var sql = "INSERT INTO DB_USER.TB_FISH_TANK_" + shardTable + "SET ?, max_time=(NOW()+ INTERVAL ? SECOND), created=NOW()";
@@ -627,6 +627,136 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                     next();
                                 }
                             });
+                        },
+                        // 잡은 물고기 로그 남기기
+                        function(next){
+                            var shardTable = uidx % parseInt(serverEnv.SHARD_COUNT);
+                            var sql = "SELECT * FROM DB_LOG.TB_LOG_USER_CAUGHT_FISH_" + shardTable;
+                            sql     += " WHERE user_idx=? AND map_idx=? AND fish_idx=?";
+                            var query = connection.query(sql, [uidx, fish.map_idx, fish.fish_idx], function(err, userFishLog){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    if(userFishLog[0]){
+                                        if(userFishLog[0].size <= fish.size){
+                                            var updateData = {
+                                                size: fish.size
+                                            };
+                                            sql = "UPDATE DB_LOG.TB_LOG_USER_CAUGHT_FISH_" + shardTable;
+                                            sql += " SET caught_count=caught_count+1, ? WHERE user_idx=? AND map_idx=? AND fish_idx=?";
+                                            query = connection.query(sql, [updateData, uidx, fish.map_idx, fish.fish_idx], function(err){
+                                                logger.debug(uidx, __filename, func, query.sql);
+                                                if(err){
+                                                    logger.error(uidx, __filename, func, err);
+                                                    next(errors.ERR_DB_QUERY);
+                                                }
+                                                else{
+                                                    next();
+                                                }
+                                            });
+                                        }
+                                        else{
+                                            sql = "UPDATE DB_LOG.TB_LOG_USER_CAUGHT_FISH_" + shardTable;
+                                            sql += " SET caught_count=caught_count+1 WHERE user_idx=? AND map_idx=? AND fish_idx=?";
+                                            query = connection.query(sql, [uidx, fish.map_idx, fish.fish_idx], function(err){
+                                                logger.debug(uidx, __filename, func, query.sql);
+                                                if(err){
+                                                    logger.error(uidx, __filename, func, err);
+                                                    next(errors.ERR_DB_QUERY);
+                                                }
+                                                else{
+                                                    next();
+                                                }
+                                            });
+                                        }
+                                    }
+                                    else{
+                                        var userCaughtFishData = {
+                                            user_idx: uidx,
+                                            fish_idx: fish.fish_idx,
+                                            size: fish.size,
+                                            caught_count: 1,
+                                            map_idx: fish.map_idx
+                                        };
+                                        sql = "INSERT INTO DB_LOG.TB_LOG_USER_CAUGHT_FISH_" + shardTable + " SET ?, created=NOW()";
+                                        query = connection.query(sql, userCaughtFishData, function(err){
+                                            logger.debug(uidx, __filename, func, query.sql);
+                                            if(err){
+                                                logger.error(uidx, __filename, func, err);
+                                                next(errors.ERR_DB_QUERY);
+                                            }
+                                            else{
+                                                next();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        },
+                        // 월드 최고 물고기와 비교 후 크다면 월드 베스트 갱신
+                        function(next){
+                            var sql = "SELECT user_idx, size FROM DB_LOG.TB_LOG_WORLD_FISH WHERE fish_idx=?";
+                            var query = connection.query(sql, fish.fish_idx, function(err, worldBest){
+                                logger.debug(uidx, __filename, func, query.sql);
+                                if(err){
+                                    logger.error(uidx, __filename, func, err);
+                                    next(errors.ERR_DB_QUERY);
+                                }
+                                else{
+                                    if(!worldBest[0]){
+                                        var newRecord = {
+                                            user_idx: uidx,
+                                            fish_idx: fish.fish_idx,
+                                            size: fish.size
+                                        };
+                                        sql = "INSERT INTO DB_LOG.TB_LOG_WORLD_FISH SET ?, created=NOW()";
+                                        query = connection.query(sql, newRecord, function(err){
+                                            logger.debug(uidx, __filename, func, query.sql);
+                                            if(err){
+                                                logger.error(uidx, __filename, func, err);
+                                                next(errors.ERR_DB_QUERY);
+                                            }
+                                            else{
+                                                next();
+                                            }
+                                        });
+                                    }
+                                    else{
+                                        if(worldBest[0].size <= fish.size){
+                                            var updateRecord = {
+                                                user_idx: uidx,
+                                                size: fish.size
+                                            };
+                                            sql = "UPDATE DB_LOG.TB_LOG_WORLD_FISH SET ? WHERE fish_idx=?";
+                                            query = connection.query(sql, [updateRecord, fish.fish_idx], function(err){
+                                                logger.debug(uidx, __filename, func, err);
+                                                if(err){
+                                                    logger.error(uidx, __filename, func, err);
+                                                    next(errors.ERR_DB_QUERY);
+                                                }
+                                                else{
+                                                    next();
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        },
+                        // 로그 남기기
+                        function(next){
+                            var logData = {
+                                uidx: uidx,
+                                fish_idx: fish.fish_idx,
+                                size: fish.size,
+                                map_idx: fish.map_idx,
+                                type: "CAUGHT_FISH"
+                            };
+                            logger.info(uidx, __filename, func, logData);
+                            next();
                         }
                     ],
                 function(err){
