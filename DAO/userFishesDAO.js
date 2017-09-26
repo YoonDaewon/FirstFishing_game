@@ -178,11 +178,12 @@ UserFishesDAO.sellCaughtFish = function(uidx, fish, callback){
                                         var userCaughtFishData = {
                                             user_idx: uidx,
                                             fish_idx: fish.fish_idx,
+                                            grade: fish.grade,
                                             size: fish.size,
                                             caught_count: 1,
                                             map_idx: fish.location
                                         };
-                                        sql = "INSERT INTO DB_LOG.TB_LOG_USER_COUGHT_FISH_" + shardTable + " SET ?";
+                                        sql = "INSERT INTO DB_LOG.TB_LOG_USER_CAUGHT_FISH_" + shardTable + " SET ?";
                                         query = connection.query(sql, userCaughtFishData, function(err){
                                             logger.debug(uidx, __filename, func, query.sql);
                                             if(err){
@@ -211,6 +212,7 @@ UserFishesDAO.sellCaughtFish = function(uidx, fish, callback){
                                         var newRecord = {
                                             fish_idx: fish.fish_idx,
                                             user_idx: uidx,
+                                            grade: fish.grade,
                                             size: fish.size
                                         };
                                         sql = "INSERT INTO DB_LOG.TB_LOG_WORLD_FISH SET ?";

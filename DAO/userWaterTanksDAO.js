@@ -677,6 +677,7 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                         var userCaughtFishData = {
                                             user_idx: uidx,
                                             fish_idx: fish.fish_idx,
+                                            grade: fish.grade,
                                             size: fish.size,
                                             caught_count: 1,
                                             map_idx: fish.map_idx
@@ -710,6 +711,7 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                                         var newRecord = {
                                             user_idx: uidx,
                                             fish_idx: fish.fish_idx,
+                                            grade: fish.grade,
                                             size: fish.size
                                         };
                                         sql = "INSERT INTO DB_LOG.TB_LOG_WORLD_FISH SET ?, created=NOW()";
@@ -751,6 +753,7 @@ UserWaterTanksDAO.putFishIntoAquarium = function(uidx, fish, userAquarium, callb
                             var logData = {
                                 uidx: uidx,
                                 fish_idx: fish.fish_idx,
+                                grade: fish.grade,
                                 size: fish.size,
                                 map_idx: fish.map_idx,
                                 type: "CAUGHT_FISH"
